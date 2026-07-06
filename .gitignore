@@ -1,0 +1,11 @@
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.db
+backend/*.db.bak
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+
+.claude/settings.local.json
+.env
+*.env
