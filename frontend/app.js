@@ -938,6 +938,7 @@ function renderModal() {
 
   if (m.type === "submitEvidence") {
     return modalShell(`Submit evidence — ${escapeHtml(m.skillTitle)}`, `
+      ${m.evidenceRequired ? `<div class="card" style="margin-bottom:14px; font-size:0.9rem;"><strong>Evidence required:</strong> ${escapeHtml(m.evidenceRequired)}</div>` : ""}
       <form data-form="submit-evidence" data-skill-id="${m.skillId}">
         <div class="field">
           <label>Explain what you did</label>
@@ -1032,7 +1033,7 @@ function handleAction(e) {
       } else if (state.view === "student") {
         const skill = state.selectedStudentTreeDetail.skills.find((s) => s.id === skillId);
         if (skill) {
-          setState({ modal: { type: "submitEvidence", skillId, skillTitle: skill.title } });
+          setState({ modal: { type: "submitEvidence", skillId, skillTitle: skill.title, evidenceRequired: skill.evidence_required } });
         }
       }
       break;
