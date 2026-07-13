@@ -714,7 +714,11 @@ function renderTeacherEvidence() {
   const rows = state.pendingEvidenceList.map((e) => `
     <div class="list-row">
       <div class="list-row-main">
-        <span class="list-row-title">${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)} · ${escapeHtml(e.student_name || `Student #${e.student_id}`)}</span>
+        <span class="list-row-title">${escapeHtml(e.student_name || `Student #${e.student_id}`)}</span>
+        <span class="list-row-meta" style="display:flex; gap:24px;">
+          <span>Skill Tree: ${escapeHtml(e.skill_tree_title || "—")}</span>
+          <span>Skill: ${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)}</span>
+        </span>
         <span class="list-row-meta">${formatDate(e.submitted_at)}</span>
         ${e.content_text ? `<span style="font-size:0.85rem; color:var(--text-dim); margin-top:4px; max-width:480px;">${escapeHtml(truncate(e.content_text, 140))}</span>` : ""}
         ${e.link_url ? `<a href="${escapeHtml(e.link_url)}" target="_blank" rel="noopener" style="font-size:0.8rem;">View submitted link →</a>` : ""}
