@@ -38,6 +38,134 @@
   --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
 
+/* ============================================================
+   Themes — override the tokens above. Default (no attribute) is
+   "Nebula", the original palette.
+   ============================================================ */
+html[data-theme="forest"] {
+  --bg: #0F1A14;
+  --surface: #16261D;
+  --surface-2: #1E3327;
+  --surface-3: #274233;
+  --border: #33513D;
+  --border-soft: #25392C;
+  --text: #E8EDE0;
+  --text-dim: #9BB09E;
+  --text-faint: #6C8570;
+  --locked: #3E5747;
+  --available: #C9A227;
+  --available-soft: rgba(201, 162, 39, 0.16);
+  --pending: #D9BB4A;
+  --pending-soft: rgba(217, 187, 74, 0.16);
+  --mastered: #4FA184;
+  --mastered-soft: rgba(79, 161, 132, 0.16);
+  --danger: #C1665C;
+  --danger-soft: rgba(193, 102, 92, 0.16);
+  --line-locked: #26372B;
+  --line-lit: rgba(201, 162, 39, 0.55);
+  --line-mastered: rgba(79, 161, 132, 0.6);
+}
+
+html[data-theme="sunset"] {
+  --bg: #1F1220;
+  --surface: #2A1B2C;
+  --surface-2: #38243B;
+  --surface-3: #472E4B;
+  --border: #5A3B5E;
+  --border-soft: #3F2942;
+  --text: #F3E6E9;
+  --text-dim: #C79FB0;
+  --text-faint: #8F6C7C;
+  --locked: #5A3F55;
+  --available: #E2793E;
+  --available-soft: rgba(226, 121, 62, 0.16);
+  --pending: #EFAE5C;
+  --pending-soft: rgba(239, 174, 92, 0.16);
+  --mastered: #5FAE84;
+  --mastered-soft: rgba(95, 174, 132, 0.16);
+  --danger: #D1544C;
+  --danger-soft: rgba(209, 84, 76, 0.16);
+  --line-locked: #3A2A3C;
+  --line-lit: rgba(226, 121, 62, 0.55);
+  --line-mastered: rgba(95, 174, 132, 0.6);
+}
+
+html[data-theme="ocean"] {
+  --bg: #0B1826;
+  --surface: #122335;
+  --surface-2: #193049;
+  --surface-3: #213E5D;
+  --border: #2C4F70;
+  --border-soft: #1B3852;
+  --text: #E3EEF5;
+  --text-dim: #93B4C8;
+  --text-faint: #5F8093;
+  --locked: #2E4A5C;
+  --available: #4FB6C4;
+  --available-soft: rgba(79, 182, 196, 0.16);
+  --pending: #E8C468;
+  --pending-soft: rgba(232, 196, 104, 0.16);
+  --mastered: #4FA184;
+  --mastered-soft: rgba(79, 161, 132, 0.16);
+  --danger: #C15C52;
+  --danger-soft: rgba(193, 92, 82, 0.16);
+  --line-locked: #1C3244;
+  --line-lit: rgba(79, 182, 196, 0.55);
+  --line-mastered: rgba(79, 161, 132, 0.6);
+}
+
+html[data-theme="slate"] {
+  --bg: #16171B;
+  --surface: #1E2025;
+  --surface-2: #282A31;
+  --surface-3: #33353D;
+  --border: #43454E;
+  --border-soft: #2E3038;
+  --text: #EDEDEF;
+  --text-dim: #A3A5AD;
+  --text-faint: #6E7079;
+  --locked: #454750;
+  --available: #D8B45A;
+  --available-soft: rgba(216, 180, 90, 0.16);
+  --pending: #E8C468;
+  --pending-soft: rgba(232, 196, 104, 0.16);
+  --mastered: #5FAE84;
+  --mastered-soft: rgba(95, 174, 132, 0.16);
+  --danger: #C15C52;
+  --danger-soft: rgba(193, 92, 82, 0.16);
+  --line-locked: #2C2E35;
+  --line-lit: rgba(216, 180, 90, 0.55);
+  --line-mastered: rgba(95, 174, 132, 0.6);
+}
+
+/* ============================================================
+   Fonts — override the font tokens. Default (no attribute) is
+   "Classic" (Cinzel / Inter / IBM Plex Mono).
+   ============================================================ */
+html[data-font="serif"] {
+  --font-display: "Playfair Display", serif;
+  --font-body: "Lora", serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+html[data-font="modern"] {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+html[data-font="pixel"] {
+  --font-display: "Press Start 2P", monospace;
+  --font-body: "VT323", monospace;
+  --font-mono: "VT323", monospace;
+}
+
+html[data-font="rounded"] {
+  --font-display: "Baloo 2", sans-serif;
+  --font-body: "Nunito", sans-serif;
+  --font-mono: "Space Mono", monospace;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -480,4 +608,47 @@ textarea { resize: vertical; min-height: 80px; }
   font-size: 0.85rem;
   box-shadow: var(--shadow);
   z-index: 200;
+}
+
+/* ============================================================
+   Settings menu (theme / font picker)
+   ============================================================ */
+.settings-dropdown {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  width: 240px;
+  box-shadow: var(--shadow);
+}
+.settings-section-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  margin: 14px 0 8px;
+}
+.settings-section-label:first-child { margin-top: 0; }
+.settings-options { display: flex; flex-direction: column; gap: 4px; }
+.settings-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  text-align: left;
+}
+.settings-option:hover { background: var(--surface-2); color: var(--text); }
+.settings-option.selected { border-color: var(--available); color: var(--available); background: var(--available-soft); }
+.settings-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
 }

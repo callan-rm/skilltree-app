@@ -30,7 +30,33 @@ const state = {
   selectedStudentTreeDetail: null,
 
   modal: null,
+
+  settingsOpen: false,
+  theme: localStorage.getItem("skilltree_theme") || "nebula",
+  font: localStorage.getItem("skilltree_font") || "classic",
 };
+
+const THEMES = [
+  { id: "nebula", label: "Nebula", swatch: "#D6A54C" },
+  { id: "forest", label: "Forest", swatch: "#C9A227" },
+  { id: "sunset", label: "Sunset", swatch: "#E2793E" },
+  { id: "ocean", label: "Ocean", swatch: "#4FB6C4" },
+  { id: "slate", label: "Slate", swatch: "#D8B45A" },
+];
+
+const FONTS = [
+  { id: "classic", label: "Classic" },
+  { id: "serif", label: "Elegant Serif" },
+  { id: "modern", label: "Modern Sans" },
+  { id: "pixel", label: "Retro Pixel" },
+  { id: "rounded", label: "Friendly Rounded" },
+];
+
+function applyThemeAndFont() {
+  document.documentElement.setAttribute("data-theme", state.theme);
+  document.documentElement.setAttribute("data-font", state.font);
+}
+applyThemeAndFont();
 
 function setState(patch) {
   Object.assign(state, patch);
@@ -387,9 +413,38 @@ function renderTopbar(showUser) {
       <div class="brand"><span class="mark"></span> Skill Charts</div>
       ${showUser && state.user ? `
         <div class="topbar-right">
+          ${state.view === "teacher" ? renderSettingsMenu() : ""}
           <span class="user-chip">${escapeHtml(state.user.full_name)} · ${state.user.role}</span>
           <button class="btn btn-ghost btn-sm" data-action="logout">Sign out</button>
         </div>` : ""}
+    </div>
+  `;
+}
+
+function renderSettingsMenu() {
+  const themeOptions = THEMES.map((t) => `
+    <button class="settings-option ${state.theme === t.id ? "selected" : ""}" data-action="set-theme" data-theme="${t.id}">
+      <span class="settings-swatch" style="background:${t.swatch}"></span> ${t.label}
+    </button>
+  `).join("");
+
+  const fontOptions = FONTS.map((f) => `
+    <button class="settings-option ${state.font === f.id ? "selected" : ""}" data-action="set-font" data-font="${f.id}">${f.label}</button>
+  `).join("");
+
+  return `
+    <div style="position:relative;">
+      <button class="btn btn-ghost btn-sm" data-action="toggle-settings" title="Theme &amp; font settings">&#9881; Settings</button>
+      ${state.settingsOpen ? `
+        <div class="modal-overlay" style="background:transparent; align-items:flex-start; justify-content:flex-end; padding-top:60px; padding-right:28px;" data-action="close-settings">
+          <div class="settings-dropdown" data-stop-propagation>
+            <div class="settings-section-label">Theme</div>
+            <div class="settings-options">${themeOptions}</div>
+            <div class="settings-section-label">Font</div>
+            <div class="settings-options">${fontOptions}</div>
+          </div>
+        </div>
+      ` : ""}
     </div>
   `;
 }
@@ -1029,6 +1084,25 @@ function handleAction(e) {
       setState({ modal: { type: el.dataset.modal, evidenceId: Number(el.dataset.evidenceId) || undefined } });
       break;
     case "close-modal": setState({ modal: null }); break;
+
+    case "toggle-settings": setState({ settingsOpen: !state.settingsOpen }); break;
+    case "close-settings": setState({ settingsOpen: false }); break;
+    case "set-theme": {
+      const theme = el.dataset.theme;
+      localStorage.setItem("skilltree_theme", theme);
+      state.theme = theme;
+      applyThemeAndFont();
+      setState({});
+      break;
+    }
+    case "set-font": {
+      const font = el.dataset.font;
+      localStorage.setItem("skilltree_font", font);
+      state.font = font;
+      applyThemeAndFont();
+      setState({});
+      break;
+    }
 
     case "select-skill": {
       const skillId = Number(el.dataset.skillId);
