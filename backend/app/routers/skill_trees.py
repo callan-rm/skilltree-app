@@ -30,9 +30,7 @@ def list_skill_trees(
     current_user: models.User = Depends(auth.get_current_user),
 ):
     if current_user.role == models.UserRole.teacher:
-        return db.query(models.SkillTree).filter(
-            models.SkillTree.teacher_id == current_user.id
-        ).all()
+        return db.query(models.SkillTree).all()
 
     # Student: trees assigned directly, or via one of their groups
     group_ids = [g.id for g in current_user.groups]
@@ -70,12 +68,8 @@ def assign_to_group(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    tree = db.query(models.SkillTree).filter(
-        models.SkillTree.id == tree_id, models.SkillTree.teacher_id == teacher.id
-    ).first()
-    group = db.query(models.Group).filter(
-        models.Group.id == group_id, models.Group.teacher_id == teacher.id
-    ).first()
+    tree = db.query(models.SkillTree).filter(models.SkillTree.id == tree_id).first()
+    group = db.query(models.Group).filter(models.Group.id == group_id).first()
     if not tree or not group:
         raise HTTPException(status_code=404, detail="Skill tree or group not found")
 
@@ -91,9 +85,7 @@ def assign_to_student(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    tree = db.query(models.SkillTree).filter(
-        models.SkillTree.id == tree_id, models.SkillTree.teacher_id == teacher.id
-    ).first()
+    tree = db.query(models.SkillTree).filter(models.SkillTree.id == tree_id).first()
     student = db.query(models.User).filter(
         models.User.id == student_id, models.User.role == models.UserRole.student
     ).first()
@@ -115,9 +107,7 @@ def add_skill(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    tree = db.query(models.SkillTree).filter(
-        models.SkillTree.id == tree_id, models.SkillTree.teacher_id == teacher.id
-    ).first()
+    tree = db.query(models.SkillTree).filter(models.SkillTree.id == tree_id).first()
     if not tree:
         raise HTTPException(status_code=404, detail="Skill tree not found")
 
@@ -150,9 +140,7 @@ def update_skill(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    tree = db.query(models.SkillTree).filter(
-        models.SkillTree.id == tree_id, models.SkillTree.teacher_id == teacher.id
-    ).first()
+    tree = db.query(models.SkillTree).filter(models.SkillTree.id == tree_id).first()
     if not tree:
         raise HTTPException(status_code=404, detail="Skill tree not found")
 

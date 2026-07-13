@@ -129,15 +129,10 @@ def pending_review(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    """All pending evidence for skill trees this teacher owns."""
+    """All pending evidence across every skill tree — any teacher can review any submission."""
     evidences = (
         db.query(models.Evidence)
-        .join(models.Skill)
-        .join(models.SkillTree)
-        .filter(
-            models.SkillTree.teacher_id == teacher.id,
-            models.Evidence.status == models.EvidenceStatus.pending,
-        )
+        .filter(models.Evidence.status == models.EvidenceStatus.pending)
         .all()
     )
     return [schemas.EvidenceOut.from_orm_with_names(e) for e in evidences]
@@ -150,13 +145,7 @@ def review_evidence(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    evidence = (
-        db.query(models.Evidence)
-        .join(models.Skill)
-        .join(models.SkillTree)
-        .filter(models.Evidence.id == evidence_id, models.SkillTree.teacher_id == teacher.id)
-        .first()
-    )
+    evidence = db.query(models.Evidence).filter(models.Evidence.id == evidence_id).first()
     if not evidence:
         raise HTTPException(status_code=404, detail="Evidence not found")
 

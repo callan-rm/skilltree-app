@@ -25,7 +25,7 @@ def list_my_groups(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    return db.query(models.Group).filter(models.Group.teacher_id == teacher.id).all()
+    return db.query(models.Group).all()
 
 
 @router.post("/{group_id}/students/{student_id}")
@@ -35,9 +35,7 @@ def add_student_to_group(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    group = db.query(models.Group).filter(
-        models.Group.id == group_id, models.Group.teacher_id == teacher.id
-    ).first()
+    group = db.query(models.Group).filter(models.Group.id == group_id).first()
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
 
@@ -61,9 +59,7 @@ def remove_student_from_group(
     db: Session = Depends(get_db),
     teacher: models.User = Depends(auth.require_teacher),
 ):
-    group = db.query(models.Group).filter(
-        models.Group.id == group_id, models.Group.teacher_id == teacher.id
-    ).first()
+    group = db.query(models.Group).filter(models.Group.id == group_id).first()
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
 

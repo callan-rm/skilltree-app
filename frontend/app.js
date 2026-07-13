@@ -590,8 +590,8 @@ function renderTeacherTrees() {
   return `
     <div class="page-header">
       <div>
-        <h2 class="page-title">Your skill trees</h2>
-        <p class="page-subtitle">Create trees, add skills, and assign them to groups or students.</p>
+        <h2 class="page-title">Skill trees</h2>
+        <p class="page-subtitle">Every skill tree, shared across all teachers — create trees, add skills, and assign them to groups or students.</p>
       </div>
       <button class="btn btn-primary" data-action="open-modal" data-modal="createTree">+ New skill tree</button>
     </div>
