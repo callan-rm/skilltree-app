@@ -207,6 +207,17 @@ async function openStudentTree(treeId) {
   }
 }
 
+async function deleteEvidenceFile(evidenceId, skillId) {
+  try {
+    await Api.deleteEvidenceFile(evidenceId);
+    state.myEvidenceList = await Api.myEvidence();
+    setState({ modal: { ...state.modal, existingEvidence: latestEvidenceForSkill(skillId) } });
+    showToast("File deleted");
+  } catch (err) {
+    showError(err);
+  }
+}
+
 // ============================================================
 // Skill status computation (student side)
 // ============================================================
@@ -998,6 +1009,12 @@ function renderModal() {
   if (m.type === "submitEvidence") {
     return modalShell(`Submit evidence — ${escapeHtml(m.skillTitle)}`, `
       ${m.evidenceRequired ? `<div class="card" style="margin-bottom:14px; font-size:0.9rem;"><strong>Evidence required:</strong> ${escapeHtml(m.evidenceRequired)}</div>` : ""}
+      ${m.existingEvidence && m.existingEvidence.file_url ? `
+        <div class="card" style="margin-bottom:14px; font-size:0.9rem; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <span>📎 ${escapeHtml(m.existingEvidence.file_name || "Submitted file")}</span>
+          <button type="button" class="btn btn-sm btn-danger" data-action="delete-evidence-file" data-evidence-id="${m.existingEvidence.id}">Delete</button>
+        </div>
+      ` : ""}
       <form data-form="submit-evidence" data-skill-id="${m.skillId}">
         <div class="field">
           <label>Explain what you did</label>
@@ -1104,6 +1121,12 @@ function handleAction(e) {
       break;
     }
 
+    case "delete-evidence-file": {
+      const evidenceId = Number(el.dataset.evidenceId);
+      deleteEvidenceFile(evidenceId, state.modal.skillId);
+      break;
+    }
+
     case "select-skill": {
       const skillId = Number(el.dataset.skillId);
       if (state.view === "teacher") {
@@ -1111,7 +1134,15 @@ function handleAction(e) {
       } else if (state.view === "student") {
         const skill = state.selectedStudentTreeDetail.skills.find((s) => s.id === skillId);
         if (skill) {
-          setState({ modal: { type: "submitEvidence", skillId, skillTitle: skill.title, evidenceRequired: skill.evidence_required } });
+          setState({
+            modal: {
+              type: "submitEvidence",
+              skillId,
+              skillTitle: skill.title,
+              evidenceRequired: skill.evidence_required,
+              existingEvidence: latestEvidenceForSkill(skillId),
+            },
+          });
         }
       }
       break;

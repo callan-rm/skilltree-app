@@ -111,6 +111,7 @@ const Api = (() => {
     // --- evidence ---
     uploadEvidenceFile: (file) => uploadFile(file),
     submitEvidence: (payload) => request("/evidence/", { method: "POST", body: payload }),
+    deleteEvidenceFile: (evidenceId) => request(`/evidence/${evidenceId}/file`, { method: "DELETE" }),
     myEvidence: () => request("/evidence/mine"),
     pendingEvidence: () => request("/evidence/pending"),
     reviewEvidence: (id, payload) =>

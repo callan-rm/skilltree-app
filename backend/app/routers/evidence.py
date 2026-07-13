@@ -69,6 +69,30 @@ def submit_evidence(
     return schemas.EvidenceOut.from_orm_with_names(evidence)
 
 
+@router.delete("/{evidence_id}/file", response_model=schemas.EvidenceOut)
+def delete_evidence_file(
+    evidence_id: int,
+    db: Session = Depends(get_db),
+    student: models.User = Depends(auth.require_student),
+):
+    evidence = db.query(models.Evidence).filter(
+        models.Evidence.id == evidence_id, models.Evidence.student_id == student.id
+    ).first()
+    if not evidence:
+        raise HTTPException(status_code=404, detail="Evidence not found")
+
+    if evidence.file_url:
+        file_path = os.path.join(UPLOAD_DIR, os.path.basename(evidence.file_url))
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        evidence.file_url = None
+        evidence.file_name = None
+        db.commit()
+        db.refresh(evidence)
+
+    return schemas.EvidenceOut.from_orm_with_names(evidence)
+
+
 @router.get("/mine", response_model=list[schemas.EvidenceOut])
 def my_evidence(
     db: Session = Depends(get_db),
