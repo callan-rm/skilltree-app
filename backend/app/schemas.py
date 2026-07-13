@@ -120,3 +120,12 @@ class EvidenceOut(EvidenceBase):
     teacher_feedback: Optional[str] = None
     submitted_at: datetime
     reviewed_at: Optional[datetime] = None
+    skill_title: Optional[str] = None
+    student_name: Optional[str] = None
+
+    @staticmethod
+    def from_orm_with_names(evidence):
+        data = EvidenceOut.model_validate(evidence)
+        data.skill_title = evidence.skill.title if evidence.skill else None
+        data.student_name = evidence.student.full_name if evidence.student else None
+        return data

@@ -65,7 +65,7 @@ def submit_evidence(
     db.add(evidence)
     db.commit()
     db.refresh(evidence)
-    return evidence
+    return schemas.EvidenceOut.from_orm_with_names(evidence)
 
 
 @router.get("/mine", response_model=list[schemas.EvidenceOut])
@@ -73,7 +73,8 @@ def my_evidence(
     db: Session = Depends(get_db),
     student: models.User = Depends(auth.require_student),
 ):
-    return db.query(models.Evidence).filter(models.Evidence.student_id == student.id).all()
+    evidences = db.query(models.Evidence).filter(models.Evidence.student_id == student.id).all()
+    return [schemas.EvidenceOut.from_orm_with_names(e) for e in evidences]
 
 
 @router.get("/pending", response_model=list[schemas.EvidenceOut])
@@ -82,7 +83,7 @@ def pending_review(
     teacher: models.User = Depends(auth.require_teacher),
 ):
     """All pending evidence for skill trees this teacher owns."""
-    return (
+    evidences = (
         db.query(models.Evidence)
         .join(models.Skill)
         .join(models.SkillTree)
@@ -92,6 +93,7 @@ def pending_review(
         )
         .all()
     )
+    return [schemas.EvidenceOut.from_orm_with_names(e) for e in evidences]
 
 
 @router.post("/{evidence_id}/review", response_model=schemas.EvidenceOut)
@@ -116,4 +118,4 @@ def review_evidence(
     evidence.reviewed_at = datetime.datetime.utcnow()
     db.commit()
     db.refresh(evidence)
-    return evidence
+    return schemas.EvidenceOut.from_orm_with_names(evidence)

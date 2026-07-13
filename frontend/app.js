@@ -714,7 +714,7 @@ function renderTeacherEvidence() {
   const rows = state.pendingEvidenceList.map((e) => `
     <div class="list-row">
       <div class="list-row-main">
-        <span class="list-row-title">Skill #${e.skill_id} · Student #${e.student_id}</span>
+        <span class="list-row-title">${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)} · ${escapeHtml(e.student_name || `Student #${e.student_id}`)}</span>
         <span class="list-row-meta">${formatDate(e.submitted_at)}</span>
         ${e.content_text ? `<span style="font-size:0.85rem; color:var(--text-dim); margin-top:4px; max-width:480px;">${escapeHtml(truncate(e.content_text, 140))}</span>` : ""}
         ${e.link_url ? `<a href="${escapeHtml(e.link_url)}" target="_blank" rel="noopener" style="font-size:0.8rem;">View submitted link →</a>` : ""}
@@ -822,7 +822,7 @@ function renderStudentSubmissions() {
     .map((e) => `
       <div class="list-row">
         <div class="list-row-main">
-          <span class="list-row-title">Skill #${e.skill_id}</span>
+          <span class="list-row-title">${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)}</span>
           <span class="list-row-meta">Submitted ${formatDate(e.submitted_at)}</span>
           ${e.teacher_feedback ? `<span style="font-size:0.85rem; color:var(--text-dim); margin-top:4px;">"${escapeHtml(e.teacher_feedback)}"</span>` : ""}
         </div>
@@ -886,7 +886,7 @@ function renderModal() {
     const e = state.pendingEvidenceList.find((x) => x.id === m.evidenceId);
     if (!e) return "";
     return modalShell("Review evidence", `
-      <p class="helper-text" style="margin-bottom:14px;">Skill #${e.skill_id} · Student #${e.student_id} · ${formatDate(e.submitted_at)}</p>
+      <p class="helper-text" style="margin-bottom:14px;">${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)} · ${escapeHtml(e.student_name || `Student #${e.student_id}`)} · ${formatDate(e.submitted_at)}</p>
       ${e.content_text ? `<div class="card" style="margin-bottom:14px; font-size:0.9rem;">${escapeHtml(e.content_text)}</div>` : ""}
       ${e.link_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(e.link_url)}" target="_blank" rel="noopener">View submitted link →</a></p>` : ""}
       ${e.file_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(API_BASE + e.file_url)}" target="_blank" rel="noopener">View submitted file →</a></p>` : ""}
