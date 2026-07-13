@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
 from . import models
 from .database import engine
-from .storage import UPLOAD_DIR
 from .routers import auth, groups, skill_trees, evidence, students
 
 # Creates tables if they don't exist yet (fine for dev; use Alembic migrations for prod)
@@ -27,8 +25,6 @@ app.include_router(groups.router)
 app.include_router(skill_trees.router)
 app.include_router(evidence.router)
 app.include_router(students.router)
-
-app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.get("/")

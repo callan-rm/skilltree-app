@@ -5,9 +5,8 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
-from .. import models, schemas, auth
+from .. import models, schemas, auth, storage
 from ..database import get_db
-from ..storage import UPLOAD_DIR
 
 router = APIRouter(prefix="/evidence", tags=["evidence"])
 
@@ -34,9 +33,9 @@ def upload_evidence_file(
 ):
     ext = os.path.splitext(file.filename or "")[1]
     filename = f"{uuid.uuid4().hex}{ext}"
-    with open(os.path.join(UPLOAD_DIR, filename), "wb") as out:
-        out.write(file.file.read())
-    return {"file_url": f"/uploads/{filename}"}
+    content = file.file.read()
+    file_url = storage.upload_file(filename, content, file.content_type)
+    return {"file_url": file_url}
 
 
 @router.post("/", response_model=schemas.EvidenceOut)
@@ -82,9 +81,8 @@ def delete_evidence_file(
         raise HTTPException(status_code=404, detail="Evidence not found")
 
     if evidence.file_url:
-        file_path = os.path.join(UPLOAD_DIR, os.path.basename(evidence.file_url))
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        if evidence.file_url.startswith(storage.SUPABASE_URL):
+            storage.delete_file(storage.filename_from_public_url(evidence.file_url))
         evidence.file_url = None
         evidence.file_name = None
         db.commit()
