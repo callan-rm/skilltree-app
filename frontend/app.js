@@ -889,7 +889,7 @@ function renderModal() {
       <p class="helper-text" style="margin-bottom:14px;">${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)} · ${escapeHtml(e.student_name || `Student #${e.student_id}`)} · ${formatDate(e.submitted_at)}</p>
       ${e.content_text ? `<div class="card" style="margin-bottom:14px; font-size:0.9rem;">${escapeHtml(e.content_text)}</div>` : ""}
       ${e.link_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(e.link_url)}" target="_blank" rel="noopener">View submitted link →</a></p>` : ""}
-      ${e.file_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(API_BASE + e.file_url)}" target="_blank" rel="noopener">View submitted file →</a></p>` : ""}
+      ${e.file_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(API_BASE + e.file_url)}" download="${escapeHtml(e.file_name || "")}" target="_blank" rel="noopener">⬇ ${escapeHtml(e.file_name || "Download submitted file")}</a></p>` : ""}
       <form data-form="review-evidence" data-evidence-id="${e.id}">
         <div class="field">
           <label>Feedback (optional)</label>
@@ -1139,15 +1139,18 @@ async function handleFormSubmit(e) {
       const skillId = Number(form.dataset.skillId);
       const fileInput = form.querySelector('input[name="evidence_file"]');
       let file_url = null;
+      let file_name = null;
       if (fileInput && fileInput.files[0]) {
         const uploaded = await Api.uploadEvidenceFile(fileInput.files[0]);
         file_url = uploaded.file_url;
+        file_name = fileInput.files[0].name;
       }
       await Api.submitEvidence({
         skill_id: skillId,
         content_text: data.content_text || null,
         link_url: data.link_url || null,
         file_url,
+        file_name,
       });
       setState({ modal: null });
       await openStudentTree(state.selectedStudentTreeId);

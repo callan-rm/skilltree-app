@@ -160,6 +160,7 @@ class Evidence(Base):
 
     content_text = Column(Text, nullable=True)   # written explanation / notes
     file_url = Column(String, nullable=True)     # link to uploaded file, if any
+    file_name = Column(String, nullable=True)    # original filename the student uploaded
     link_url = Column(String, nullable=True)     # external link (e.g. video, doc)
 
     status = Column(Enum(EvidenceStatus), default=EvidenceStatus.pending, nullable=False)

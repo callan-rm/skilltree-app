@@ -99,6 +99,7 @@ class SkillTreeDetail(SkillTreeOut):
 class EvidenceBase(BaseModel):
     content_text: Optional[str] = None
     file_url: Optional[str] = None
+    file_name: Optional[str] = None
     link_url: Optional[str] = None
 
 

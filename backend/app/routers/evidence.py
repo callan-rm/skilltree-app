@@ -60,6 +60,7 @@ def submit_evidence(
         student_id=student.id,
         content_text=evidence_in.content_text,
         file_url=evidence_in.file_url,
+        file_name=evidence_in.file_name,
         link_url=evidence_in.link_url,
     )
     db.add(evidence)
