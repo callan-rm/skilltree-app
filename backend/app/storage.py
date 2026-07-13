@@ -37,3 +37,9 @@ def delete_file(filename: str) -> None:
 
 def filename_from_public_url(url: str) -> str:
     return url.rsplit("/", 1)[-1]
+
+
+def fetch_file(url: str) -> tuple[bytes, str]:
+    resp = requests.get(url)
+    resp.raise_for_status()
+    return resp.content, resp.headers.get("content-type", "application/octet-stream")

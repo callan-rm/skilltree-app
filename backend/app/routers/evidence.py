@@ -1,8 +1,9 @@
 import datetime
 import os
 import uuid
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Response
 from sqlalchemy.orm import Session
 
 from .. import models, schemas, auth, storage
@@ -36,6 +37,29 @@ def upload_evidence_file(
     content = file.file.read()
     file_url = storage.upload_file(filename, content, file.content_type)
     return {"file_url": file_url}
+
+
+@router.get("/{evidence_id}/download")
+def download_evidence_file(
+    evidence_id: int,
+    db: Session = Depends(get_db),
+):
+    """Proxies the file through our own origin so the browser honors the
+    original filename — the `download` attribute is silently ignored for
+    cross-origin URLs like Supabase Storage's."""
+    evidence = db.query(models.Evidence).filter(models.Evidence.id == evidence_id).first()
+    if not evidence or not evidence.file_url or not evidence.file_url.startswith("http"):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    content, content_type = storage.fetch_file(evidence.file_url)
+    filename = (evidence.file_name or "evidence-file").replace('"', "")
+    return Response(
+        content=content,
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f"attachment; filename=\"{filename}\"; filename*=UTF-8''{quote(filename)}"
+        },
+    )
 
 
 @router.post("/", response_model=schemas.EvidenceOut)

@@ -386,12 +386,6 @@ function escapeHtml(str) {
   }[c]));
 }
 
-// Newer evidence files are absolute Supabase Storage URLs; older records
-// (pre-migration) stored a relative /uploads path served by the backend.
-function resolveFileUrl(url) {
-  return /^https?:\/\//.test(url) ? url : `${API_BASE}${url}`;
-}
-
 function truncate(str, n) {
   return str.length > n ? str.slice(0, n - 1) + "…" : str;
 }
@@ -965,7 +959,7 @@ function renderModal() {
       <p class="helper-text" style="margin-bottom:14px;">${escapeHtml(e.student_name || `Student #${e.student_id}`)} · Skill Tree: ${escapeHtml(e.skill_tree_title || "—")} · Skill: ${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)} · ${formatDate(e.submitted_at)}</p>
       ${e.content_text ? `<div class="card" style="margin-bottom:14px; font-size:0.9rem;">${escapeHtml(e.content_text)}</div>` : ""}
       ${e.link_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(e.link_url)}" target="_blank" rel="noopener">View submitted link →</a></p>` : ""}
-      ${e.file_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(resolveFileUrl(e.file_url))}" download="${escapeHtml(e.file_name || "")}" target="_blank" rel="noopener">⬇ ${escapeHtml(e.file_name || "Download submitted file")}</a></p>` : ""}
+      ${e.file_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(API_BASE)}/evidence/${e.id}/download" target="_blank" rel="noopener">⬇ ${escapeHtml(e.file_name || "Download submitted file")}</a></p>` : ""}
       <form data-form="review-evidence" data-evidence-id="${e.id}">
         <div class="field">
           <label>Feedback (optional)</label>
