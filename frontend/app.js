@@ -945,7 +945,7 @@ function renderModal() {
     const e = state.pendingEvidenceList.find((x) => x.id === m.evidenceId);
     if (!e) return "";
     return modalShell("Review evidence", `
-      <p class="helper-text" style="margin-bottom:14px;">${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)} · ${escapeHtml(e.student_name || `Student #${e.student_id}`)} · ${formatDate(e.submitted_at)}</p>
+      <p class="helper-text" style="margin-bottom:14px;">${escapeHtml(e.student_name || `Student #${e.student_id}`)} · Skill Tree: ${escapeHtml(e.skill_tree_title || "—")} · Skill: ${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)} · ${formatDate(e.submitted_at)}</p>
       ${e.content_text ? `<div class="card" style="margin-bottom:14px; font-size:0.9rem;">${escapeHtml(e.content_text)}</div>` : ""}
       ${e.link_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(e.link_url)}" target="_blank" rel="noopener">View submitted link →</a></p>` : ""}
       ${e.file_url ? `<p style="margin-bottom:14px;"><a href="${escapeHtml(API_BASE + e.file_url)}" download="${escapeHtml(e.file_name || "")}" target="_blank" rel="noopener">⬇ ${escapeHtml(e.file_name || "Download submitted file")}</a></p>` : ""}
