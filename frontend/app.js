@@ -770,7 +770,7 @@ function renderTeacherEvidence() {
     <div class="list-row">
       <div class="list-row-main">
         <span class="list-row-title">${escapeHtml(e.student_name || `Student #${e.student_id}`)}</span>
-        <span class="list-row-meta" style="display:flex; gap:24px;">
+        <span class="list-row-meta" style="display:flex; gap:24px; color:var(--text);">
           <span>Skill Tree: ${escapeHtml(e.skill_tree_title || "—")}</span>
           <span>Skill: ${escapeHtml(e.skill_title || `Skill #${e.skill_id}`)}</span>
         </span>
