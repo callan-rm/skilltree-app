@@ -1014,22 +1014,23 @@ function renderModal() {
           <span>📎 ${escapeHtml(m.existingEvidence.file_name || "Submitted file")}</span>
           <button type="button" class="btn btn-sm btn-danger" data-action="delete-evidence-file" data-evidence-id="${m.existingEvidence.id}">Delete</button>
         </div>
-      ` : ""}
-      <form data-form="submit-evidence" data-skill-id="${m.skillId}">
-        <div class="field">
-          <label>Explain what you did</label>
-          <textarea name="content_text" placeholder="Describe how you demonstrated this skill…"></textarea>
-        </div>
-        <div class="field">
-          <label>Link (optional)</label>
-          <input type="url" name="link_url" placeholder="https://…" />
-        </div>
-        <div class="field">
-          <label>Upload a file (optional)</label>
-          <input type="file" name="evidence_file" />
-        </div>
-        <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center">Submit</button>
-      </form>
+      ` : `
+        <form data-form="submit-evidence" data-skill-id="${m.skillId}">
+          <div class="field">
+            <label>Explain what you did</label>
+            <textarea name="content_text" placeholder="Describe how you demonstrated this skill…"></textarea>
+          </div>
+          <div class="field">
+            <label>Link (optional)</label>
+            <input type="url" name="link_url" placeholder="https://…" />
+          </div>
+          <div class="field">
+            <label>Upload a file (optional)</label>
+            <input type="file" name="evidence_file" />
+          </div>
+          <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center">Submit</button>
+        </form>
+      `}
     `);
   }
 
