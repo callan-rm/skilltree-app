@@ -103,6 +103,8 @@ const Api = (() => {
       request(`/skill-trees/${treeId}/skills`, { method: "POST", body: payload }),
     updateSkill: (treeId, skillId, payload) =>
       request(`/skill-trees/${treeId}/skills/${skillId}`, { method: "PUT", body: payload }),
+    deleteSkill: (treeId, skillId) =>
+      request(`/skill-trees/${treeId}/skills/${skillId}`, { method: "DELETE" }),
     assignToGroup: (treeId, groupId) =>
       request(`/skill-trees/${treeId}/assign-group/${groupId}`, { method: "POST" }),
     assignToStudent: (treeId, studentId) =>

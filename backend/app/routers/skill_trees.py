@@ -167,3 +167,43 @@ def update_skill(
     db.commit()
     db.refresh(skill)
     return schemas.SkillOut.from_orm_with_prereqs(skill)
+
+
+def _collect_dependents(skill: models.Skill, collected: set[int]) -> None:
+    for dependent in skill.unlocks:
+        if dependent.id not in collected:
+            collected.add(dependent.id)
+            _collect_dependents(dependent, collected)
+
+
+@router.delete("/{tree_id}/skills/{skill_id}")
+def delete_skill(
+    tree_id: int,
+    skill_id: int,
+    db: Session = Depends(get_db),
+    teacher: models.User = Depends(auth.require_teacher),
+):
+    tree = db.query(models.SkillTree).filter(models.SkillTree.id == tree_id).first()
+    if not tree:
+        raise HTTPException(status_code=404, detail="Skill tree not found")
+
+    skill = db.query(models.Skill).filter(
+        models.Skill.id == skill_id, models.Skill.skill_tree_id == tree.id
+    ).first()
+    if not skill:
+        raise HTTPException(status_code=404, detail="Skill not found")
+
+    to_delete_ids = {skill.id}
+    _collect_dependents(skill, to_delete_ids)
+
+    db.query(models.Evidence).filter(models.Evidence.skill_id.in_(to_delete_ids)).delete(synchronize_session=False)
+    db.execute(
+        models.skill_prerequisites.delete().where(
+            models.skill_prerequisites.c.skill_id.in_(to_delete_ids)
+            | models.skill_prerequisites.c.prerequisite_id.in_(to_delete_ids)
+        )
+    )
+    db.query(models.Skill).filter(models.Skill.id.in_(to_delete_ids)).delete(synchronize_session=False)
+    db.commit()
+
+    return {"detail": "Skill deleted", "deleted_skill_ids": list(to_delete_ids)}

@@ -169,6 +169,17 @@ async function openTeacherTree(treeId) {
   }
 }
 
+async function deleteSkill(treeId, skillId) {
+  try {
+    await Api.deleteSkill(treeId, skillId);
+    setState({ modal: null });
+    await openTeacherTree(treeId);
+    showToast("Skill deleted");
+  } catch (err) {
+    showError(err);
+  }
+}
+
 async function loadPendingEvidence() {
   try {
     const list = await Api.pendingEvidence();
@@ -988,6 +999,9 @@ function renderModal() {
       `).join("") || `<p class="helper-text">No other skills yet to depend on.</p>`;
 
     return modalShell("Edit skill", `
+      <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+        <button type="button" class="btn btn-sm btn-danger" data-action="delete-skill" data-tree-id="${tree.id}" data-skill-id="${skill.id}">Delete skill</button>
+      </div>
       <form data-form="edit-skill" data-tree-id="${tree.id}" data-skill-id="${skill.id}">
         <div class="field">
           <label>Title</label>
@@ -1125,6 +1139,18 @@ function handleAction(e) {
     case "delete-evidence-file": {
       const evidenceId = Number(el.dataset.evidenceId);
       deleteEvidenceFile(evidenceId, state.modal.skillId);
+      break;
+    }
+
+    case "delete-skill": {
+      const treeId = Number(el.dataset.treeId);
+      const skillId = Number(el.dataset.skillId);
+      const tree = state.selectedTreeDetail;
+      const dependents = tree.skills.filter((s) => s.prerequisite_ids.includes(skillId));
+      const proceed = dependents.length > 0
+        ? confirm("Deleting this will delete skills that depend on this one. Do you want to proceed?")
+        : true;
+      if (proceed) deleteSkill(treeId, skillId);
       break;
     }
 
