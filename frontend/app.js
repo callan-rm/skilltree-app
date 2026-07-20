@@ -999,9 +999,6 @@ function renderModal() {
       `).join("") || `<p class="helper-text">No other skills yet to depend on.</p>`;
 
     return modalShell("Edit skill", `
-      <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-        <button type="button" class="btn btn-sm btn-danger" data-action="delete-skill" data-tree-id="${tree.id}" data-skill-id="${skill.id}">Delete skill</button>
-      </div>
       <form data-form="edit-skill" data-tree-id="${tree.id}" data-skill-id="${skill.id}">
         <div class="field">
           <label>Title</label>
@@ -1017,7 +1014,7 @@ function renderModal() {
         </div>
         <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center">Save changes</button>
       </form>
-    `);
+    `, `<button type="button" class="btn btn-sm btn-danger" data-action="delete-skill" data-tree-id="${tree.id}" data-skill-id="${skill.id}">Delete skill</button>`);
   }
 
   if (m.type === "submitEvidence") {
@@ -1051,13 +1048,16 @@ function renderModal() {
   return "";
 }
 
-function modalShell(title, bodyHtml) {
+function modalShell(title, bodyHtml, headerExtra = "") {
   return `
     <div class="modal-overlay" data-action="close-modal">
       <div class="modal" data-stop-propagation>
         <div class="modal-header">
           <h3 class="modal-title">${title}</h3>
-          <button class="modal-close" data-action="close-modal">&times;</button>
+          <div style="display:flex; align-items:center; gap:10px;">
+            ${headerExtra}
+            <button class="modal-close" data-action="close-modal">&times;</button>
+          </div>
         </div>
         ${bodyHtml}
       </div>
