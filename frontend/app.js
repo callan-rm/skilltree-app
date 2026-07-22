@@ -321,14 +321,14 @@ function layoutTree(skills) {
 
   const colWidth = 190;
   const rowHeight = 96;
+  const maxCols = Math.max(1, ...Object.values(rows).map((row) => row.length));
   const positions = {};
-  let maxCols = 1;
 
   Object.keys(rows).forEach((d) => {
     const row = rows[d];
-    maxCols = Math.max(maxCols, row.length);
+    const offset = (maxCols - row.length) / 2; // centers shorter rows under the widest one
     row.forEach((skill, i) => {
-      const x = 90 + i * colWidth + (i % 2 === 0 ? 0 : 14); // slight offset, constellation feel
+      const x = 90 + (offset + i) * colWidth + (i % 2 === 0 ? 0 : 14); // slight offset, constellation feel
       const y = 70 + Number(d) * rowHeight;
       positions[skill.id] = { x, y };
     });
