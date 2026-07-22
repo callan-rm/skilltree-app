@@ -302,31 +302,31 @@ function layoutTree(skills) {
 
   skills.forEach((s) => depthOf(s));
 
-  const columns = {};
+  const rows = {};
   skills.forEach((s) => {
     const d = depthCache[s.id];
-    columns[d] = columns[d] || [];
-    columns[d].push(s);
+    rows[d] = rows[d] || [];
+    rows[d].push(s);
   });
 
   const colWidth = 190;
   const rowHeight = 96;
   const positions = {};
-  let maxRows = 1;
+  let maxCols = 1;
 
-  Object.keys(columns).forEach((d) => {
-    const col = columns[d];
-    maxRows = Math.max(maxRows, col.length);
-    col.forEach((skill, i) => {
-      const x = 90 + Number(d) * colWidth;
-      const y = 70 + i * rowHeight + (i % 2 === 0 ? 0 : 14); // slight offset, constellation feel
+  Object.keys(rows).forEach((d) => {
+    const row = rows[d];
+    maxCols = Math.max(maxCols, row.length);
+    row.forEach((skill, i) => {
+      const x = 90 + i * colWidth + (i % 2 === 0 ? 0 : 14); // slight offset, constellation feel
+      const y = 70 + Number(d) * rowHeight;
       positions[skill.id] = { x, y };
     });
   });
 
-  const maxDepth = Math.max(0, ...Object.keys(columns).map(Number));
-  const width = 90 + (maxDepth + 1) * colWidth;
-  const height = 70 + maxRows * rowHeight + 40;
+  const maxDepth = Math.max(0, ...Object.keys(rows).map(Number));
+  const width = 90 + maxCols * colWidth;
+  const height = 70 + (maxDepth + 1) * rowHeight + 40;
 
   return { positions, width: Math.max(width, 400), height: Math.max(height, 260), byId };
 }
@@ -360,9 +360,9 @@ function renderTreeSvg(skills, { studentView, onNodeClick }) {
       } else {
         lit = "var(--line-lit)";
       }
-      const midX = (from.x + to.x) / 2;
+      const midY = (from.y + to.y) / 2;
       edges.push(
-        `<path class="skill-edge" d="M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}" stroke="${lit}" />`
+        `<path class="skill-edge" d="M ${from.x} ${from.y} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y}" stroke="${lit}" />`
       );
     });
   });
