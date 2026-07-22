@@ -10,6 +10,13 @@ from ..database import get_db
 router = APIRouter(prefix="/skill-trees", tags=["skill trees"])
 
 
+def _tree_out(tree: models.SkillTree) -> schemas.SkillTreeOut:
+    data = schemas.SkillTreeOut.model_validate(tree)
+    data.assigned_group_ids = [g.id for g in tree.assigned_groups]
+    data.assigned_student_ids = [s.id for s in tree.assigned_students]
+    return data
+
+
 # --- Skill tree CRUD ---------------------------------------------------
 
 @router.post("/", response_model=schemas.SkillTreeOut)
@@ -24,7 +31,7 @@ def create_skill_tree(
     db.add(tree)
     db.commit()
     db.refresh(tree)
-    return tree
+    return _tree_out(tree)
 
 
 @router.post("/{tree_id}/background", response_model=schemas.SkillTreeOut)
@@ -44,7 +51,7 @@ def upload_tree_background(
     tree.background_image_url = storage.upload_file(filename, content, file.content_type)
     db.commit()
     db.refresh(tree)
-    return tree
+    return _tree_out(tree)
 
 
 @router.delete("/{tree_id}/background", response_model=schemas.SkillTreeOut)
@@ -62,7 +69,7 @@ def remove_tree_background(
     tree.background_image_url = None
     db.commit()
     db.refresh(tree)
-    return tree
+    return _tree_out(tree)
 
 
 @router.get("/", response_model=list[schemas.SkillTreeOut])
@@ -71,7 +78,7 @@ def list_skill_trees(
     current_user: models.User = Depends(auth.get_current_user),
 ):
     if current_user.role == models.UserRole.teacher:
-        return db.query(models.SkillTree).all()
+        return [_tree_out(t) for t in db.query(models.SkillTree).all()]
 
     # Student: trees assigned directly, or via one of their groups
     group_ids = [g.id for g in current_user.groups]
@@ -79,7 +86,7 @@ def list_skill_trees(
         (models.SkillTree.assigned_students.any(id=current_user.id))
         | (models.SkillTree.assigned_groups.any(models.Group.id.in_(group_ids)))
     ).all()
-    return trees
+    return [_tree_out(t) for t in trees]
 
 
 def _get_tree_with_detail(tree_id: int, db: Session) -> schemas.SkillTreeDetail:
@@ -88,6 +95,8 @@ def _get_tree_with_detail(tree_id: int, db: Session) -> schemas.SkillTreeDetail:
         raise HTTPException(status_code=404, detail="Skill tree not found")
 
     detail = schemas.SkillTreeDetail.model_validate(tree)
+    detail.assigned_group_ids = [g.id for g in tree.assigned_groups]
+    detail.assigned_student_ids = [s.id for s in tree.assigned_students]
     detail.skills = [schemas.SkillOut.from_orm_with_prereqs(s) for s in tree.skills]
     return detail
 

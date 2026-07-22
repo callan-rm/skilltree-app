@@ -470,6 +470,15 @@ textarea { resize: vertical; min-height: 80px; }
 .list-row-title { font-size: 0.92rem; }
 .list-row-meta { font-size: 0.78rem; color: var(--text-faint); font-family: var(--font-mono); }
 
+.student-scroll-box {
+  max-height: 76px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding-right: 6px;
+}
+.student-scroll-box div { padding: 2px 0; }
+
 /* Status badges */
 .badge {
   display: inline-flex;

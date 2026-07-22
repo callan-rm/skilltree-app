@@ -89,6 +89,8 @@ class SkillTreeOut(SkillTreeBase):
     teacher_id: int
     created_at: datetime
     background_image_url: Optional[str] = None
+    assigned_group_ids: list[int] = []
+    assigned_student_ids: list[int] = []
 
 
 class SkillTreeDetail(SkillTreeOut):

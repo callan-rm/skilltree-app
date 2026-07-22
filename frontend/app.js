@@ -788,16 +788,27 @@ function renderTeacherStudents() {
     : state.allStudents;
 
   const rows = filtered.map((s) => {
-    const groupNames = state.groups
-      .filter((g) => g.students.some((gs) => gs.id === s.id))
-      .map((g) => g.name);
+    const studentGroups = state.groups.filter((g) => g.students.some((gs) => gs.id === s.id));
+    const studentGroupIds = studentGroups.map((g) => g.id);
+    const treeNames = state.trees
+      .filter((t) => (t.assigned_student_ids || []).includes(s.id) || (t.assigned_group_ids || []).some((gid) => studentGroupIds.includes(gid)))
+      .map((t) => t.title);
+
+    const groupList = studentGroups.length
+      ? `<div class="student-scroll-box">${studentGroups.map((g) => `<div>${escapeHtml(g.name)}</div>`).join("")}</div>`
+      : `<span class="helper-text">No groups</span>`;
+    const treeList = treeNames.length
+      ? `<div class="student-scroll-box">${treeNames.map((title) => `<div>${escapeHtml(title)}</div>`).join("")}</div>`
+      : `<span class="helper-text">No skill trees assigned</span>`;
+
     return `
-      <div class="list-row" data-action="select-student" data-student-id="${s.id}" style="cursor:pointer;">
+      <div class="list-row" data-action="select-student" data-student-id="${s.id}" style="cursor:pointer; display:grid; grid-template-columns: 1.2fr 1fr 1fr; gap:16px; align-items:start;">
         <div class="list-row-main">
           <span class="list-row-title">${escapeHtml(s.full_name)}</span>
           <span class="list-row-meta">${escapeHtml(s.email)}</span>
-          <span class="helper-text" style="margin-top:2px;">${groupNames.length ? escapeHtml(groupNames.join(", ")) : "No groups yet"}</span>
         </div>
+        ${groupList}
+        ${treeList}
       </div>
     `;
   }).join("");
