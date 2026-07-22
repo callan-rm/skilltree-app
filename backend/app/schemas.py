@@ -88,6 +88,7 @@ class SkillTreeOut(SkillTreeBase):
     id: int
     teacher_id: int
     created_at: datetime
+    background_image_url: Optional[str] = None
 
 
 class SkillTreeDetail(SkillTreeOut):

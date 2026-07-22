@@ -180,6 +180,16 @@ async function deleteSkill(treeId, skillId) {
   }
 }
 
+async function removeTreeBackground(treeId) {
+  try {
+    await Api.removeTreeBackground(treeId);
+    await openTeacherTree(treeId);
+    showToast("Background removed");
+  } catch (err) {
+    showError(err);
+  }
+}
+
 async function openStudentProgress(studentId) {
   try {
     const student = state.allStudents.find((s) => s.id === studentId);
@@ -655,7 +665,7 @@ function renderTeacherTreeDetail() {
 
     <div class="two-col">
       <div>
-        <div class="tree-canvas-wrap">
+        <div class="tree-canvas-wrap" ${tree.background_image_url ? `style="background-image:url('${escapeHtml(tree.background_image_url)}');"` : ""}>
           ${tree.skills.length === 0
             ? `<div class="empty-state"><div class="glyph">✦</div><p>This tree has no skills yet.</p></div>`
             : svg}
@@ -666,6 +676,18 @@ function renderTeacherTreeDetail() {
       </div>
 
       <div>
+        <div class="card" style="margin-bottom:16px;">
+          <h3 style="margin-top:0; font-family:var(--font-display); font-size:1rem;">Tree background</h3>
+          <form data-form="upload-tree-background" data-tree-id="${tree.id}" style="display:flex; gap:8px; align-items:flex-end; margin-bottom:${tree.background_image_url ? "10px" : "0"};">
+            <div class="field" style="flex:1; margin-bottom:0;">
+              <label>Upload an image</label>
+              <input type="file" name="background_image" accept="image/*" required />
+            </div>
+            <button class="btn btn-sm" type="submit">Upload</button>
+          </form>
+          ${tree.background_image_url ? `<button class="btn btn-sm btn-ghost" type="button" data-action="remove-tree-background" data-tree-id="${tree.id}">Remove background</button>` : ""}
+        </div>
+
         <div class="card" style="margin-bottom:16px;">
           <h3 style="margin-top:0; font-family:var(--font-display); font-size:1rem;">Add a skill</h3>
           <form data-form="add-skill" data-tree-id="${tree.id}">
@@ -898,7 +920,7 @@ function renderStudentTreeDetail() {
       </div>
       <button class="btn btn-ghost btn-sm" data-action="student-tab" data-tab="trees">&larr; All trees</button>
     </div>
-    <div class="tree-canvas-wrap">
+    <div class="tree-canvas-wrap" ${tree.background_image_url ? `style="background-image:url('${escapeHtml(tree.background_image_url)}');"` : ""}>
       ${tree.skills.length === 0
         ? `<div class="empty-state"><div class="glyph">✦</div><p>This tree has no skills yet.</p></div>`
         : svg}
@@ -1193,6 +1215,12 @@ function handleAction(e) {
       break;
     }
 
+    case "remove-tree-background": {
+      const treeId = Number(el.dataset.treeId);
+      removeTreeBackground(treeId);
+      break;
+    }
+
     case "select-skill": {
       const skillId = Number(el.dataset.skillId);
       if (state.view === "teacher") {
@@ -1260,6 +1288,15 @@ async function handleFormSubmit(e) {
 
     else if (formType === "search-students") {
       setState({ studentsSearchQuery: data.q || "" });
+    }
+
+    else if (formType === "upload-tree-background") {
+      const treeId = Number(form.dataset.treeId);
+      const fileInput = form.querySelector('input[name="background_image"]');
+      if (!fileInput || !fileInput.files[0]) throw new Error("Choose an image to upload.");
+      await Api.uploadTreeBackground(treeId, fileInput.files[0]);
+      await openTeacherTree(treeId);
+      showToast("Background updated");
     }
 
     else if (formType === "add-skill") {

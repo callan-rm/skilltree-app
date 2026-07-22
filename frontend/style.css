@@ -523,7 +523,9 @@ textarea { resize: vertical; min-height: 80px; }
    Skill tree canvas — the signature element
    ============================================================ */
 .tree-canvas-wrap {
-  background: radial-gradient(ellipse at 50% 0%, rgba(35, 43, 84, 0.5), transparent 60%), var(--surface);
+  background: radial-gradient(ellipse at 50% 0%, rgba(35, 43, 84, 0.5), transparent 60%), var(--surface-2);
+  background-size: cover;
+  background-position: center;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
   overflow: auto;

@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+import os
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
-from .. import models, schemas, auth
+from .. import models, schemas, auth, storage
 from ..database import get_db
 
 router = APIRouter(prefix="/skill-trees", tags=["skill trees"])
@@ -19,6 +22,44 @@ def create_skill_tree(
         title=tree_in.title, description=tree_in.description, teacher_id=teacher.id
     )
     db.add(tree)
+    db.commit()
+    db.refresh(tree)
+    return tree
+
+
+@router.post("/{tree_id}/background", response_model=schemas.SkillTreeOut)
+def upload_tree_background(
+    tree_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    teacher: models.User = Depends(auth.require_teacher),
+):
+    tree = db.query(models.SkillTree).filter(models.SkillTree.id == tree_id).first()
+    if not tree:
+        raise HTTPException(status_code=404, detail="Skill tree not found")
+
+    ext = os.path.splitext(file.filename or "")[1]
+    filename = f"bg-{uuid.uuid4().hex}{ext}"
+    content = file.file.read()
+    tree.background_image_url = storage.upload_file(filename, content, file.content_type)
+    db.commit()
+    db.refresh(tree)
+    return tree
+
+
+@router.delete("/{tree_id}/background", response_model=schemas.SkillTreeOut)
+def remove_tree_background(
+    tree_id: int,
+    db: Session = Depends(get_db),
+    teacher: models.User = Depends(auth.require_teacher),
+):
+    tree = db.query(models.SkillTree).filter(models.SkillTree.id == tree_id).first()
+    if not tree:
+        raise HTTPException(status_code=404, detail="Skill tree not found")
+
+    if tree.background_image_url and tree.background_image_url.startswith(storage.SUPABASE_URL):
+        storage.delete_file(storage.filename_from_public_url(tree.background_image_url))
+    tree.background_image_url = None
     db.commit()
     db.refresh(tree)
     return tree

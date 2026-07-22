@@ -47,7 +47,7 @@ const Api = (() => {
     return data;
   }
 
-  async function uploadFile(file) {
+  async function uploadFile(path, file) {
     const headers = {};
     if (getToken()) headers["Authorization"] = `Bearer ${getToken()}`;
 
@@ -56,7 +56,7 @@ const Api = (() => {
 
     let res;
     try {
-      res = await fetch(`${API_BASE}/evidence/upload`, { method: "POST", headers, body: formData });
+      res = await fetch(`${API_BASE}${path}`, { method: "POST", headers, body: formData });
     } catch (err) {
       throw new Error(
         `Couldn't reach the server at ${API_BASE}. Is the backend running?`
@@ -110,9 +110,12 @@ const Api = (() => {
       request(`/skill-trees/${treeId}/assign-group/${groupId}`, { method: "POST" }),
     assignToStudent: (treeId, studentId) =>
       request(`/skill-trees/${treeId}/assign-student/${studentId}`, { method: "POST" }),
+    uploadTreeBackground: (treeId, file) => uploadFile(`/skill-trees/${treeId}/background`, file),
+    removeTreeBackground: (treeId) =>
+      request(`/skill-trees/${treeId}/background`, { method: "DELETE" }),
 
     // --- evidence ---
-    uploadEvidenceFile: (file) => uploadFile(file),
+    uploadEvidenceFile: (file) => uploadFile("/evidence/upload", file),
     submitEvidence: (payload) => request("/evidence/", { method: "POST", body: payload }),
     deleteEvidenceFile: (evidenceId) => request(`/evidence/${evidenceId}/file`, { method: "DELETE" }),
     myEvidence: () => request("/evidence/mine"),
