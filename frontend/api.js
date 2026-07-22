@@ -94,6 +94,7 @@ const Api = (() => {
 
     // --- students ---
     listStudents: () => request("/students/"),
+    studentProgress: (studentId) => request(`/students/${studentId}/progress`),
 
     // --- skill trees ---
     listSkillTrees: () => request("/skill-trees/"),

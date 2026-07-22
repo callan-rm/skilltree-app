@@ -134,3 +134,11 @@ class EvidenceOut(EvidenceBase):
         )
         data.student_name = evidence.student.full_name if evidence.student else None
         return data
+
+
+# --- Student progress -----------------------------------------------------
+
+class StudentProgressTree(BaseModel):
+    skill_tree_id: int
+    skill_tree_title: str
+    attained_skills: list[str]

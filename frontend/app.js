@@ -180,6 +180,22 @@ async function deleteSkill(treeId, skillId) {
   }
 }
 
+async function openStudentProgress(studentId) {
+  try {
+    const student = state.allStudents.find((s) => s.id === studentId);
+    const progress = await Api.studentProgress(studentId);
+    setState({
+      modal: {
+        type: "studentProgress",
+        studentName: student ? student.full_name : `Student #${studentId}`,
+        progress,
+      },
+    });
+  } catch (err) {
+    showError(err);
+  }
+}
+
 async function loadPendingEvidence() {
   try {
     const list = await Api.pendingEvidence();
@@ -754,7 +770,7 @@ function renderTeacherStudents() {
       .filter((g) => g.students.some((gs) => gs.id === s.id))
       .map((g) => g.name);
     return `
-      <div class="list-row">
+      <div class="list-row" data-action="select-student" data-student-id="${s.id}" style="cursor:pointer;">
         <div class="list-row-main">
           <span class="list-row-title">${escapeHtml(s.full_name)}</span>
           <span class="list-row-meta">${escapeHtml(s.email)}</span>
@@ -963,6 +979,23 @@ function renderModal() {
     `);
   }
 
+  if (m.type === "studentProgress") {
+    const trees = m.progress.map((t) => `
+      <div class="card" style="margin-bottom:12px;">
+        <h4 style="margin:0 0 8px 0; font-family:var(--font-display); font-size:0.95rem;">${escapeHtml(t.skill_tree_title)}</h4>
+        ${t.attained_skills.length
+          ? `<ul style="margin:0; padding-left:18px; font-size:0.85rem;">${t.attained_skills.map((title) => `<li>${escapeHtml(title)}</li>`).join("")}</ul>`
+          : `<p class="helper-text" style="margin:0;">Started, but no skills mastered yet.</p>`}
+      </div>
+    `).join("");
+
+    return modalShell(`Progress — ${escapeHtml(m.studentName)}`, `
+      ${m.progress.length === 0
+        ? `<p class="helper-text">Hasn't started any skill trees yet.</p>`
+        : trees}
+    `);
+  }
+
   if (m.type === "reviewEvidence") {
     const e = state.pendingEvidenceList.find((x) => x.id === m.evidenceId);
     if (!e) return "";
@@ -1151,6 +1184,12 @@ function handleAction(e) {
         ? confirm("Deleting this will delete skills that depend on this one. Do you want to proceed?")
         : true;
       if (proceed) deleteSkill(treeId, skillId);
+      break;
+    }
+
+    case "select-student": {
+      const studentId = Number(el.dataset.studentId);
+      openStudentProgress(studentId);
       break;
     }
 
