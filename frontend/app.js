@@ -438,7 +438,15 @@ function formatDate(iso) {
 // ============================================================
 
 function render() {
-  root.innerHTML = "";
+  // Full re-render on every state change would normally steal focus out of
+  // whatever input the user is typing in (e.g. live search) — save it here
+  // and restore it after, matched by id.
+  const activeEl = document.activeElement;
+  let focusInfo = null;
+  if (activeEl && root.contains(activeEl) && activeEl.id) {
+    focusInfo = { id: activeEl.id, start: activeEl.selectionStart, end: activeEl.selectionEnd };
+  }
+
   let content;
 
   if (state.view === "loading") {
@@ -453,6 +461,16 @@ function render() {
 
   root.innerHTML = content + renderModal() + renderToast();
   wireEvents();
+
+  if (focusInfo) {
+    const el = document.getElementById(focusInfo.id);
+    if (el) {
+      el.focus();
+      if (typeof focusInfo.start === "number" && typeof el.setSelectionRange === "function") {
+        try { el.setSelectionRange(focusInfo.start, focusInfo.end); } catch { /* not a text-selectable input */ }
+      }
+    }
+  }
 }
 
 function renderTopbar(showUser) {
@@ -820,13 +838,10 @@ function renderTeacherStudents() {
         <p class="page-subtitle">Everyone with a student account, regardless of group.</p>
       </div>
     </div>
-    <form data-form="search-students" style="max-width:320px; margin-bottom:16px;">
-      <div class="field" style="margin-bottom:8px;">
-        <label>Search by name</label>
-        <input type="text" name="q" placeholder="Jamie…" value="${escapeHtml(state.studentsSearchQuery)}" autocomplete="off" />
-      </div>
-      <button class="btn btn-sm" type="submit">Search</button>
-    </form>
+    <div class="field" style="max-width:320px; margin-bottom:16px;">
+      <label>Search by name</label>
+      <input type="text" id="students-search-input" data-live="search-students" placeholder="Jamie…" value="${escapeHtml(state.studentsSearchQuery)}" autocomplete="off" />
+    </div>
     ${filtered.length === 0 ? `
       <div class="empty-state card">
         <div class="glyph">✦</div>
@@ -1147,6 +1162,17 @@ function wireEvents() {
   root.querySelectorAll("form[data-form]").forEach((el) => {
     el.addEventListener("submit", handleFormSubmit);
   });
+
+  root.querySelectorAll("[data-live]").forEach((el) => {
+    el.addEventListener("input", handleLiveInput);
+  });
+}
+
+function handleLiveInput(e) {
+  const el = e.currentTarget;
+  if (el.dataset.live === "search-students") {
+    setState({ studentsSearchQuery: el.value });
+  }
 }
 
 function handleAction(e) {
@@ -1295,10 +1321,6 @@ async function handleFormSubmit(e) {
       form.reset();
       await refreshGroups();
       showToast("Student added");
-    }
-
-    else if (formType === "search-students") {
-      setState({ studentsSearchQuery: data.q || "" });
     }
 
     else if (formType === "upload-tree-background") {
